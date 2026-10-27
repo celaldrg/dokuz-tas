@@ -1,0 +1,161 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Dokuz Taş · Nine men's morris</title>
+  <meta name="description" content="Dokuz Taş, the classic game of nine men's morris, in your browser: place, move and fly your nine pieces, close mills and beat a three-level computer or a friend. In English and Turkish.">
+  <meta name="theme-color" content="#0f172a">
+  <meta property="og:type" content="website">
+  <meta property="og:title" content="Dokuz Taş">
+  <meta property="og:description" content="The classic game of nine men's morris in your browser: close mills, take pieces and outplay a three-level computer or a friend.">
+  <meta property="og:url" content="https://celaldrg.github.io/dokuz-tas/">
+  <meta property="og:image" content="https://celaldrg.github.io/dokuz-tas/docs/screenshot.png">
+  <meta name="twitter:card" content="summary_large_image">
+  <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 64 64'%3E%3Crect width='64' height='64' rx='14' fill='%230f172a'/%3E%3Cg fill='none' stroke='%23c084fc' stroke-width='4' stroke-linecap='round'%3E%3Crect x='10' y='10' width='44' height='44' rx='2'/%3E%3Crect x='22' y='22' width='20' height='20' rx='1'/%3E%3Cpath d='M32 10v12M32 42v12M10 32h12M42 32h12'/%3E%3C/g%3E%3Ccircle cx='10' cy='10' r='6.5' fill='%23f5efe6'/%3E%3Ccircle cx='54' cy='54' r='6.5' fill='%23231d19' stroke='%23c084fc' stroke-width='2'/%3E%3C/svg%3E">
+  <link rel="stylesheet" href="style.css">
+  <script type="module" src="src/main.js"></script>
+</head>
+<body>
+  <header class="topbar">
+    <div class="brand">
+      <svg class="brand-mark" viewBox="0 0 32 32" aria-hidden="true">
+        <rect x="1" y="1" width="30" height="30" rx="8" class="brand-tile"/>
+        <g class="brand-lines">
+          <rect x="7" y="7" width="18" height="18" rx="1"/>
+          <rect x="12" y="12" width="8" height="8" rx="0.5"/>
+          <path d="M16 7v5M16 20v5M7 16h5M20 16h5"/>
+        </g>
+        <circle cx="7" cy="7" r="3.2" class="brand-white"/>
+        <circle cx="25" cy="25" r="3.2" class="brand-black"/>
+      </svg>
+      <h1 data-i18n="title">Dokuz Taş</h1>
+    </div>
+    <div class="topbar-actions">
+      <button type="button" class="btn btn-primary" id="new-game" data-i18n="newGame">New game</button>
+      <button type="button" class="btn btn-lang" id="lang-toggle" data-i18n="langToggle" data-i18n-label="langToggleLabel" aria-label="TR – switch to Turkish">TR</button>
+    </div>
+  </header>
+
+  <main class="layout">
+    <div class="status" id="status" role="status" aria-live="polite" data-tone="turn">
+      <span class="status-disc is-white" id="status-disc" aria-hidden="true"></span>
+      <p class="status-text"><strong id="status-actor"></strong> <span id="status-action"></span></p>
+      <span class="phase-chip" id="phase-chip"></span>
+    </div>
+    <div class="board-wrap">
+      <svg id="board" class="board" viewBox="0 0 700 700" role="group" aria-label="Dokuz Taş board" data-i18n-label="boardLabel">
+        <defs>
+          <radialGradient id="piece-white" cx="38%" cy="32%" r="72%">
+            <stop offset="0" stop-color="#fffdf8"/>
+            <stop offset="0.55" stop-color="#efe5d3"/>
+            <stop offset="1" stop-color="#c3ad86"/>
+          </radialGradient>
+          <radialGradient id="piece-black" cx="38%" cy="32%" r="72%">
+            <stop offset="0" stop-color="#716760"/>
+            <stop offset="0.5" stop-color="#2b2521"/>
+            <stop offset="1" stop-color="#0b0908"/>
+          </radialGradient>
+          <radialGradient id="piece-shadow">
+            <stop offset="0.6" stop-color="#2b1605" stop-opacity="0.5"/>
+            <stop offset="1" stop-color="#2b1605" stop-opacity="0"/>
+          </radialGradient>
+        </defs>
+        <rect class="frame" x="18" y="18" width="664" height="664" rx="8"/>
+        <g class="motif" aria-hidden="true">
+          <circle cx="350" cy="350" r="42"/>
+          <path d="M350 302 361 339 398 350 361 361 350 398 339 361 302 350 339 339Z"/>
+        </g>
+      </svg>
+      <div class="result" id="result" hidden>
+        <div class="result-card">
+          <p class="result-title" id="result-title"></p>
+          <p class="result-reason" id="result-reason"></p>
+          <button type="button" class="btn btn-primary" id="play-again" data-i18n="playAgain">Play again</button>
+        </div>
+      </div>
+    </div>
+
+    <div class="panel">
+      <div class="players">
+        <article class="player player--white" id="player-white">
+          <div class="player-head">
+            <span class="disc disc--white" aria-hidden="true"></span>
+            <h2 class="player-name" data-i18n="white">White</h2>
+            <span class="player-role" id="role-white"></span>
+          </div>
+          <div class="tally" id="tally-white" aria-hidden="true"><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i></div>
+          <dl class="player-stats">
+            <div><dt data-i18n="inHand">In hand</dt><dd id="hand-white">9</dd></div>
+            <div><dt data-i18n="onBoard">On board</dt><dd id="onboard-white">0</dd></div>
+          </dl>
+        </article>
+        <article class="player player--black" id="player-black">
+          <div class="player-head">
+            <span class="disc disc--black" aria-hidden="true"></span>
+            <h2 class="player-name" data-i18n="black">Black</h2>
+            <span class="player-role" id="role-black"></span>
+          </div>
+          <div class="tally" id="tally-black" aria-hidden="true"><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i></div>
+          <dl class="player-stats">
+            <div><dt data-i18n="inHand">In hand</dt><dd id="hand-black">9</dd></div>
+            <div><dt data-i18n="onBoard">On board</dt><dd id="onboard-black">0</dd></div>
+          </dl>
+        </article>
+      </div>
+
+      <div class="actions">
+        <button type="button" class="btn" id="undo">
+          <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M8 5 3 10l5 5"/><path d="M3 10h11.5a5.5 5.5 0 0 1 0 11H10"/></svg>
+          <span data-i18n="undo">Undo</span>
+        </button>
+        <button type="button" class="btn" id="rules-open">
+          <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M5 19.5V4.5A1.5 1.5 0 0 1 6.5 3H19v15H6.5A1.5 1.5 0 0 0 5 19.5A1.5 1.5 0 0 0 6.5 21H19v-3"/><path d="M9 7.5h6M9 11h4"/></svg>
+          <span data-i18n="rules">Rules</span>
+        </button>
+      </div>
+
+      <form class="settings" id="settings">
+        <fieldset class="seg-group">
+          <legend data-i18n="modeLabel">Mode</legend>
+          <div class="seg">
+            <label><input type="radio" name="mode" value="ai"><span data-i18n="modeAi">vs Computer</span></label>
+            <label><input type="radio" name="mode" value="two"><span data-i18n="modeTwo">2 players</span></label>
+          </div>
+        </fieldset>
+        <fieldset class="seg-group" id="level-group">
+          <legend data-i18n="levelLabel">Level</legend>
+          <div class="seg">
+            <label><input type="radio" name="level" value="easy"><span data-i18n="levelEasy">Easy</span></label>
+            <label><input type="radio" name="level" value="medium"><span data-i18n="levelMedium">Medium</span></label>
+            <label><input type="radio" name="level" value="hard"><span data-i18n="levelHard">Hard</span></label>
+          </div>
+        </fieldset>
+        <fieldset class="seg-group" id="color-group">
+          <legend data-i18n="colorLabel">You play</legend>
+          <div class="seg">
+            <label><input type="radio" name="color" value="white"><span><i class="disc disc--white" aria-hidden="true"></i><span data-i18n="white">White</span></span></label>
+            <label><input type="radio" name="color" value="black"><span><i class="disc disc--black" aria-hidden="true"></i><span data-i18n="black">Black</span></span></label>
+          </div>
+        </fieldset>
+      </form>
+
+      <p class="keys" data-i18n="keysHelp">Keyboard: arrow keys move around the board, Enter or Space picks, Esc cancels, U undoes, N starts a new game.</p>
+    </div>
+  </main>
+
+  <footer class="footer">MIT · <a href="https://github.com/celaldrg/dokuz-tas" data-i18n="footerSource">Source on GitHub</a></footer>
+
+  <dialog class="dialog" id="rules-dialog" aria-labelledby="rules-title">
+    <form method="dialog" class="dialog-inner">
+      <h2 id="rules-title" data-i18n="rulesTitle" tabindex="-1" autofocus>How to play</h2>
+      <ol class="rules-list" id="rules-list"></ol>
+      <h3 data-i18n="controlsTitle">Controls</h3>
+      <ul class="rules-list" id="controls-list"></ul>
+      <div class="dialog-actions">
+        <button class="btn btn-primary" value="close" data-i18n="close">Close</button>
+      </div>
+    </form>
+  </dialog>
+</body>
+</html>

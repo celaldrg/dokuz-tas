@@ -1,0 +1,11 @@
+{
+  "name": "dokuz-tas",
+  "version": "1.0.0",
+  "description": "Dokuz Taş (nine men's morris) in the browser: play a three-level AI or a friend, in English or Turkish. No dependencies, no build step.",
+  "private": true,
+  "type": "module",
+  "scripts": {
+    "test": "node --test"
+  },
+  "license": "MIT"
+}
