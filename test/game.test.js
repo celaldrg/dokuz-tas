@@ -208,3 +208,17 @@ test('the demo shows a freshly closed mill waiting for a removal', () => {
   assert.deepEqual(after.onBoard, { white: 7, black: 6 });
   assert.equal(after.result, null);
 });
+
+test('the phase follows the shown board while a removal is pending after the last placement', () => {
+  const game = createGame({
+    position: createPosition({ white: [0, 1, 5, 9, 13], black: [3, 4, 14, 20, 23], inHand: { white: 1 } }),
+  });
+  assert.equal(game.getState().phase, 'placing');
+  assert.ok(game.step(null, 2));
+  const state = game.getState();
+  assert.ok(state.pending);
+  assert.deepEqual(state.inHand, { white: 0, black: 0 });
+  assert.equal(state.phase, 'moving');
+  assert.ok(game.undo());
+  assert.equal(game.getState().phase, 'placing');
+});

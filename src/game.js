@@ -175,7 +175,7 @@ function snapshot(state) {
     turn: position.turn,
     inHand: { ...shown.inHand },
     onBoard: { white: countPieces(shown.board, WHITE), black: countPieces(shown.board, BLACK) },
-    phase: phaseOf(position),
+    phase: phaseOf(shown, position.turn),
     pending: pending && { ...pending },
     removable: pending ? removablePieces(position.board, opponent(position.turn)) : [],
     lastMove: state.lastMove && { ...state.lastMove },
